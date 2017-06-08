@@ -13,6 +13,7 @@ GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
 
 AUTOCONF_DOWNLOAD_URL=http://ftp.gnu.org/gnu/autoconf
 AUTOMAKE_DOWNLOAD_URL=http://ftp.gnu.org/gnu/automake
+LIBTOOL_DOWNLOAD_URL=http://ftp.gnu.org/gnu/libtool
 
 
 function check_var {
@@ -179,4 +180,17 @@ function build_automake {
     tar -zxf ${automake_fname}.tar.gz
     (cd ${automake_fname} && do_standard_install)
     rm -rf ${automake_fname} ${automake_fname}.tar.gz
+}
+
+function build_libtool {
+    local libtool_fname=$1
+    check_var ${libtool_fname}
+    local libtool_sha256=$2
+    check_var ${libtool_sha256}
+    check_var ${LIBTOOL_DOWNLOAD_URL}
+    curl -sLO ${LIBTOOL_DOWNLOAD_URL}/${libtool_fname}.tar.gz
+    check_sha256sum ${libtool_fname}.tar.gz ${libtool_sha256}
+    tar -zxf ${libtool_fname}.tar.gz
+    (cd ${libtool_fname} && do_standard_install)
+    rm -rf ${libtool_fname} ${libtool_fname}.tar.gz
 }
