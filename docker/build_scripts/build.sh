@@ -154,7 +154,7 @@ tar -xzf libxslt-1.1.29.tar.gz
 tar -xzf xmlsec-1_2_24.tar.gz
 (cd libxml2-2.9.4 && sed -i "/seems to be moved/s/^/#/" ltmain.sh && ./configure --prefix=/usr --with-history --with-python=$PY35_BIN/python && make && make install)
 (cd libxslt-1.1.29 && sed -i "/seems to be moved/s/^/#/" ltmain.sh && ./configure --prefix=/usr --with-history && make && make install)
-(cd xmlsec-xmlsec-1_2_24 && ./autogen.sh --prefix=/usr && make && make install)
+(export ACLOCAL_PATH=/usr/share/aclocal && cd xmlsec-xmlsec-1_2_24 && ./autogen.sh --prefix=/usr && make && make install)
 
 # Install latest pypi release of auditwheel
 $PY36_BIN/pip install auditwheel
