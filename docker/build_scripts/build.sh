@@ -65,7 +65,7 @@ rm -f epel-release-5*.rpm
 
 # Setup postgresql repo
 sed -r -i 's/\[(base|update)\]/[\1]\nexclude=postgresql*\n/g' /etc/yum.repos.d/CentOS-Base.repo
-wget -q https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-5-x86_64/pgdg-centos95-9.5-3.noarch.rpm
+wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-5-x86_64/pgdg-centos95-9.5-3.noarch.rpm
 rpm -Uvh --replacepkgs pgdg-centos*.rpm
 rm -f pgdg-centos*.rpm
 yum list postgres*
@@ -156,9 +156,9 @@ tar -xzf patchelf.tar.gz
 rm -rf patchelf.tar.gz patchelf-$PATCHELF_VERSION
 
 # Build/install latest libxml, libxsl, and libxmlsec1
-wget http://xmlsoft.org/sources/libxml2-2.9.4.tar.gz
-wget http://xmlsoft.org/sources/libxslt-1.1.29.tar.gz
-wget https://github.com/lsh123/xmlsec/archive/xmlsec-1_2_24.tar.gz -O xmlsec-1_2_24.tar.gz
+curl -fsSLO http://xmlsoft.org/sources/libxml2-2.9.4.tar.gz
+curl -fsSLO http://xmlsoft.org/sources/libxslt-1.1.29.tar.gz
+curl -fsSL -o xmlsec-1_2_24.tar.gz https://github.com/lsh123/xmlsec/archive/xmlsec-1_2_24.tar.gz
 echo 'ae249165c173b1ff386ee8ad676815f5  libxml2-2.9.4.tar.gz' > md5sums
 echo 'a129d3c44c022de3b9dcf6d6f288d72e  libxslt-1.1.29.tar.gz' >> md5sums
 echo 'bdb38e4d18fb49f991c3e7586a561c5a  xmlsec-1_2_24.tar.gz' >> md5sums
