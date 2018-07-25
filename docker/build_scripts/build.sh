@@ -65,7 +65,7 @@ rm -f epel-release-5*.rpm
 
 # Setup postgresql repo
 sed -r -i 's/\[(base|update)\]/[\1]\nexclude=postgresql*\n/g' /etc/yum.repos.d/CentOS-Base.repo
-curl -SLO https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-5-x86_64/pgdg-centos95-9.5-3.noarch.rpm
+wget -q https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-5-x86_64/pgdg-centos95-9.5-3.noarch.rpm
 rpm -Uvh --replacepkgs pgdg-centos*.rpm
 rm -f pgdg-centos*.rpm
 yum list postgres*
