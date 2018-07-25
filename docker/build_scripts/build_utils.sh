@@ -1,23 +1,6 @@
 #!/bin/bash
 # Helper utilities for build
 
-PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
-# XXX: the official https server at www.openssl.org cannot be reached
-# with the old versions of openssl and curl in Centos 5.11 hence the fallback
-# to the ftp mirror:
-OPENSSL_DOWNLOAD_URL=ftp://ftp.openssl.org/source
-# Ditto the curl sources
-# FIXME: This is about the only mirror that supports bootstrapping over a
-# broken version of curl. Unfortunately, we are hardcoding the directory used
-# to download the new version of curl.
-CURL_DOWNLOAD_URL=https://github.com/curl/curl/releases/download/curl-7_57_0
-
-GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
-
-AUTOCONF_DOWNLOAD_URL=http://ftp.gnu.org/gnu/autoconf
-AUTOMAKE_DOWNLOAD_URL=http://ftp.gnu.org/gnu/automake
-LIBTOOL_DOWNLOAD_URL=http://ftp.gnu.org/gnu/libtool
-
 
 function check_var {
     if [ -z "$1" ]; then
@@ -33,6 +16,15 @@ function lex_pyver {
     # 3.2.1 -> 003002001
     # 3     -> 003000000
     echo $1 | awk -F "." '{printf "%03d%03d%03d", $1, $2, $3}'
+}
+
+
+function pyver_dist_dir {
+    # Echoes the dist directory name of given pyver, removing alpha/beta prerelease
+    # Thus:
+    # 3.2.1   -> 3.2.1
+    # 3.7.0b4 -> 3.7.0
+    echo $1 | awk -F "." '{printf "%d.%d.%d", $1, $2, $3}'
 }
 
 
@@ -62,7 +54,10 @@ function do_cpython_build {
     if [ -e ${prefix}/bin/python3 ]; then
         ln -s python3 ${prefix}/bin/python
     fi
-    ${prefix}/bin/python get-pip.py
+    # --force-reinstall is to work around:
+    #   https://github.com/pypa/pip/issues/5220
+    #   https://github.com/pypa/get-pip/issues/19
+    ${prefix}/bin/python get-pip.py --force-reinstall
     if [ -e ${prefix}/bin/pip3 ] && [ ! -e ${prefix}/bin/pip ]; then
         ln -s pip3 ${prefix}/bin/pip
     fi
@@ -78,8 +73,9 @@ function build_cpython {
     local py_ver=$1
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
-    curl -fsSLO $PYTHON_DOWNLOAD_URL/$py_ver/Python-$py_ver.tgz
-    curl -fsSLO $PYTHON_DOWNLOAD_URL/$py_ver/Python-$py_ver.tgz.asc
+    local py_dist_dir=$(pyver_dist_dir $py_ver)
+    curl -fsSLO $PYTHON_DOWNLOAD_URL/$py_dist_dir/Python-$py_ver.tgz
+    curl -fsSLO $PYTHON_DOWNLOAD_URL/$py_dist_dir/Python-$py_ver.tgz.asc
     gpg --verify Python-$py_ver.tgz.asc
     if [ $(lex_pyver $py_ver) -lt $(lex_pyver 3.3) ]; then
         do_cpython_build $py_ver ucs2
@@ -113,7 +109,32 @@ function build_cpythons {
 function do_openssl_build {
     ./config no-ssl2 no-shared -fPIC --prefix=/usr/local/ssl > /dev/null
     make > /dev/null
-    make install > /dev/null
+    make install_sw > /dev/null
+}
+
+
+function check_required_source {
+    local file=$1
+    check_var ${file}
+    if [ ! -f $file ]; then
+        echo "Required source archive must be prefetched to docker/sources/ with prefetch.sh: $file"
+        return 1
+    fi
+}
+
+
+function fetch_source {
+    # This is called both inside and outside the build context (e.g. in Travis) to prefetch
+    # source tarballs, where curl exists (and works)
+    local file=$1
+    check_var ${file}
+    local url=$2
+    check_var ${url}
+    if [ -f ${file} ]; then
+        echo "${file} exists, skipping fetch"
+    else
+        curl -fsSL -o ${file} ${url}/${file}
+    fi
 }
 
 
@@ -134,8 +155,8 @@ function build_openssl {
     check_var ${openssl_fname}
     local openssl_sha256=$2
     check_var ${openssl_sha256}
-    check_var ${OPENSSL_DOWNLOAD_URL}
-    curl -sSLO ${OPENSSL_DOWNLOAD_URL}/${openssl_fname}.tar.gz
+    # Can't use curl here because we don't have it yet, OpenSSL must be prefetched
+    check_required_source ${openssl_fname}.tar.gz
     check_sha256sum ${openssl_fname}.tar.gz ${openssl_sha256}
     tar -xzf ${openssl_fname}.tar.gz
     (cd ${openssl_fname} && do_openssl_build)
@@ -143,8 +164,24 @@ function build_openssl {
 }
 
 
+function build_git {
+    local git_fname=$1
+    check_var ${git_fname}
+    local git_sha256=$2
+    check_var ${git_sha256}
+    check_var ${GIT_DOWNLOAD_URL}
+    fetch_source v${git_fname}.tar.gz ${GIT_DOWNLOAD_URL}
+    check_sha256sum v${git_fname}.tar.gz ${git_sha256}
+    tar -xzf v${git_fname}.tar.gz
+    (cd git-${git_fname} && make install prefix=/usr/local LDFLAGS="-L/usr/local/ssl/lib -ldl" CFLAGS="-I/usr/local/ssl/include" > /dev/null)
+    rm -rf git-${git_fname} v${git_fname}.tar.gz
+}
+
+
 function do_curl_build {
-    LIBS=-ldl ./configure --with-ssl --disable-shared > /dev/null
+    # We do this shared to avoid obnoxious linker issues where git couldn't
+    # link properly. If anyone wants to make this build statically go for it.
+    LIBS=-ldl CFLAGS=-Wl,--exclude-libs,ALL ./configure --with-ssl --disable-static > /dev/null
     make > /dev/null
     make install > /dev/null
 }
@@ -156,11 +193,12 @@ function build_curl {
     local curl_sha256=$2
     check_var ${curl_sha256}
     check_var ${CURL_DOWNLOAD_URL}
-    curl -sSLO ${CURL_DOWNLOAD_URL}/${curl_fname}.tar.bz2
-    check_sha256sum ${curl_fname}.tar.bz2 ${curl_sha256}
-    tar -jxf ${curl_fname}.tar.bz2
-    (cd ${curl_fname} && do_curl_build)
-    rm -rf ${curl_fname} ${curl_fname}.tar.bz2
+    # Can't use curl here because we don't have it yet...we are building it. It must be prefetched
+    check_required_source ${curl_fname}.tar.gz
+    check_sha256sum ${curl_fname}.tar.gz ${curl_sha256}
+    tar -zxf ${curl_fname}.tar.gz
+    (cd curl-* && do_curl_build)
+    rm -rf curl-*
 }
 
 
@@ -177,7 +215,7 @@ function build_autoconf {
     local autoconf_sha256=$2
     check_var ${autoconf_sha256}
     check_var ${AUTOCONF_DOWNLOAD_URL}
-    curl -sSLO ${AUTOCONF_DOWNLOAD_URL}/${autoconf_fname}.tar.gz
+    fetch_source ${autoconf_fname}.tar.gz ${AUTOCONF_DOWNLOAD_URL}
     check_sha256sum ${autoconf_fname}.tar.gz ${autoconf_sha256}
     tar -zxf ${autoconf_fname}.tar.gz
     (cd ${autoconf_fname} && do_standard_install)
@@ -191,13 +229,12 @@ function build_automake {
     local automake_sha256=$2
     check_var ${automake_sha256}
     check_var ${AUTOMAKE_DOWNLOAD_URL}
-    curl -sSLO ${AUTOMAKE_DOWNLOAD_URL}/${automake_fname}.tar.gz
+    fetch_source ${automake_fname}.tar.gz ${AUTOMAKE_DOWNLOAD_URL}
     check_sha256sum ${automake_fname}.tar.gz ${automake_sha256}
     tar -zxf ${automake_fname}.tar.gz
     (cd ${automake_fname} && do_standard_install)
     rm -rf ${automake_fname} ${automake_fname}.tar.gz
 }
-
 
 function build_libtool {
     local libtool_fname=$1
@@ -205,7 +242,7 @@ function build_libtool {
     local libtool_sha256=$2
     check_var ${libtool_sha256}
     check_var ${LIBTOOL_DOWNLOAD_URL}
-    curl -sSLO ${LIBTOOL_DOWNLOAD_URL}/${libtool_fname}.tar.gz
+    fetch_source ${libtool_fname}.tar.gz ${LIBTOOL_DOWNLOAD_URL}
     check_sha256sum ${libtool_fname}.tar.gz ${libtool_sha256}
     tar -zxf ${libtool_fname}.tar.gz
     (cd ${libtool_fname} && do_standard_install)

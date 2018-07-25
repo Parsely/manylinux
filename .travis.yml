@@ -18,10 +18,11 @@ env:
     - secure: "Nn2O7NZse6mq1vdgKUZZMYOWA6XZe0HRaYMpYdSyoIkXiOc7HTWwmem6yz3yASyG+9JYi3LBOXaxyajGw+wf6OM5ee7L8QIQrCorNA+ddm+xWVJbs0AQ5iFgMVjHH1m3bpWs5op5z+ehnZbSYGet10sBM8DRG38QCIJOSZSnVIfy4VMmDmX9KnCYJlYLpCNjJjbmw+UMq5HOZ1Ogp6M3qraf3jsuxWcZ171g/M6OUhpmh3DxzqZhcwa3PlNWkMaJTIErW6wBnaUKFV+7ke9+2/Oyos4upGE2imTiDXcTQsS22X/mIXBL+/JVb/OFldEvYS466fyAHAJwxUNrA1ov8LHxr/9nshTq3NaBbwHfySkMQA6RHc6WAGiyD0dTMV/WE04PzgG1XIeGaXelakAxzgN8QXHPEyqJY3zNdiGqmqWWfuruoGWC+7JRqhVrWCAtv2NwevRu6cIh9dV6ezYYPuIcvq11uPxpdUiuhEIWaHBFy93I6o/G3jZGOy1nszVLznQYQ+JoIXMi/CeauG3kWz9TEFUyAIh8Zj6nFeXagI5mBcNQTqNSg/uw4+taKymZNVdno4i3S2A8/6qh6uXVGtb7WD1zlULAbAU174fD2IwPv9G/MpSUov/D97/3euK3BIoCl7OOC4XOnNGgF4TfX++XUGyTcbKbigOj3QCYO3U="
 
 script:
-  - docker build --rm -t $REPO:$TRAVIS_COMMIT -f docker/Dockerfile-x86_64 docker/
+  - REPO=$REPO TRAVIS_COMMIT=$TRAVIS_COMMIT ./build.sh
 
 deploy:
   provider: script
   script: docker/deploy.sh
   on:
     branch: master
+    repo: pypa/manylinux
