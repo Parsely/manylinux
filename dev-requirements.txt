@@ -89,6 +89,7 @@ psycopg2
 pyasn1
 pycparser
 pycrypto
+pyfarmhash
 pygerduty
 Pygments
 pykafka
