@@ -25,4 +25,3 @@ deploy:
   script: docker/deploy.sh
   on:
     branch: master
-    repo: parsely/manylinux
