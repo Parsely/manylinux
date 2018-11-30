@@ -129,6 +129,7 @@ simplejson
 simple_salesforce
 six
 smhasher
+spacy
 sphinx
 sphinx-http-domain
 sphinx_rtd_theme
