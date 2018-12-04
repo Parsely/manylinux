@@ -12,18 +12,18 @@ MY_DIR=$(dirname "${BASH_SOURCE[0]}")
 # the final image after compiling Python
 # GPG installed to verify signatures on Python source tarballs.
 PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel \
-                     readline-devel tk-devel gdbm-devel db4-devel libpcap-devel\
-                     xz-devel gpg atlas-devel libev-devel libev snappy-devel
-                     python-imaging openjpeg-devel freetype-devel libpng-devel \
-                     libffi-devel python-lxml postgresql95-libs \
-                     postgresql95-devel lapack-devel python \
-                     python-devel python-setuptools pcre pcre-devel \
-                     pandoc"
+readline-devel tk-devel gdbm-devel db4-devel libpcap-devel\
+xz-devel gpg atlas-devel libev-devel libev snappy-devel
+python-imaging openjpeg-devel freetype-devel libpng-devel \
+libffi-devel python-lxml postgresql95-libs \
+postgresql95-devel lapack-devel python \
+python-devel python-setuptools pcre pcre-devel \
+pandoc"
 
 # Libraries that are allowed as part of the manylinux1 profile
 MANYLINUX1_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel \
-                 libXext-devel libXrender-devel mesa-libGL-devel \
-                 libICE-devel libSM-devel ncurses-devel"
+libXext-devel libXrender-devel mesa-libGL-devel \
+libICE-devel libSM-devel ncurses-devel"
 
 # Centos 5 is EOL and is no longer available from the usual mirrors, so switch
 # to http://vault.centos.org
@@ -69,28 +69,30 @@ wget --no-check-certificate https://download.postgresql.org/pub/repos/yum/9.5/re
 rpm -Uvh --replacepkgs pgdg-centos*.rpm
 rm -f pgdg-centos*.rpm
 yum list postgres*
+# from now on, we shall only use curl to retrieve files
+yum -y erase wget
 
 # Development tools and libraries
 yum -y install \
-    automake \
-    bison \
-    bzip2 \
-    cmake28 \
-    devtoolset-2-binutils \
-    devtoolset-2-gcc \
-    devtoolset-2-gcc-c++ \
-    devtoolset-2-gcc-gfortran \
-    diffutils \
-    expat-devel \
-    gettext \
-    kernel-devel-`uname -r` \
-    file \
-    make \
-    patch \
-    unzip \
-    which \
-    yasm \
-    ${PYTHON_COMPILE_DEPS}
+automake \
+bison \
+bzip2 \
+cmake28 \
+devtoolset-2-binutils \
+devtoolset-2-gcc \
+devtoolset-2-gcc-c++ \
+devtoolset-2-gcc-gfortran \
+diffutils \
+expat-devel \
+gettext \
+kernel-devel-`uname -r` \
+file \
+make \
+patch \
+unzip \
+which \
+yasm \
+${PYTHON_COMPILE_DEPS}
 
 # Build an OpenSSL for both curl and the Pythons. We'll delete this at the end.
 build_openssl $OPENSSL_ROOT $OPENSSL_HASH
@@ -143,7 +145,7 @@ $PY36_BIN/pip install --require-hashes -r $MY_DIR/py36-requirements.txt
 # And it's not clear how up-to-date that is anyway
 # So let's just use the same one pip and everyone uses
 ln -s $($PY36_BIN/python -c 'import certifi; print(certifi.where())') \
-      /opt/_internal/certs.pem
+/opt/_internal/certs.pem
 # If you modify this line you also have to modify the versions in the
 # Dockerfiles:
 export SSL_CERT_FILE=/opt/_internal/certs.pem
@@ -175,13 +177,13 @@ ln -s $PY36_BIN/auditwheel /usr/local/bin/auditwheel
 # Clean up development headers and other unnecessary stuff for
 # final image
 yum -y erase \
-    avahi \
-    bitstream-vera-fonts \
-    freetype \
-    gtk2 \
-    hicolor-icon-theme \
-    libX11 \
-    wireless-tools  > /dev/null 2>&1
+avahi \
+bitstream-vera-fonts \
+freetype \
+gtk2 \
+hicolor-icon-theme \
+libX11 \
+wireless-tools  > /dev/null 2>&1
 yum -y install ${MANYLINUX1_DEPS}
 yum -y clean all > /dev/null 2>&1
 yum list installed
@@ -192,14 +194,14 @@ find /opt/_internal -name '*.a' -print0 | xargs -0 rm -f
 # Strip what we can -- and ignore errors, because this just attempts to strip
 # *everything*, including non-ELF files:
 find /opt/_internal -type f -print0 \
-    | xargs -0 -n1 strip --strip-unneeded 2>/dev/null || true
+| xargs -0 -n1 strip --strip-unneeded 2>/dev/null || true
 
 # We do not need the Python test suites, or indeed the precompiled .pyc and
 # .pyo files. Partially cribbed from:
 #    https://github.com/docker-library/python/blob/master/3.4/slim/Dockerfile
 find /opt/_internal -depth \
-     \( -type d -a -name test -o -name tests \) \
-  -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) | xargs rm -rf
+\( -type d -a -name test -o -name tests \) \
+-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) | xargs rm -rf
 
 for PYTHON in /opt/python/*/bin/python; do
     # Smoke test to make sure that our Pythons work, and do indeed detect as
