@@ -73,6 +73,7 @@ more-itertools
 msgpack-python
 ndg-httpsclient
 newrelic
+nltk
 nose
 numpy
 oauth2client
@@ -91,6 +92,7 @@ pycparser
 pycrypto
 pyfarmhash
 pygerduty
+pygithub
 Pygments
 pykafka
 pylru
@@ -137,6 +139,7 @@ sqlalchemy
 sst
 statsd
 statsmodels
+stopit
 streamparse
 suds-jurko
 tablib
