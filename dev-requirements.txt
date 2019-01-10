@@ -29,6 +29,8 @@ docopt
 ecdsa
 elasticsearch
 elasticsearch-dsl
+elasticsearch1
+elasticsearch1-dsl
 enum34
 Fabric
 fabric3
