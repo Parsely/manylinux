@@ -44,6 +44,7 @@ geoip2
 gevent
 gnippy
 google-api-python-client
+googleapis-common-protos
 google-cloud
 greenlet
 grequests
