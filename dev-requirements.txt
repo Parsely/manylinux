@@ -1,5 +1,6 @@
 Cython
 aiocassandra
+asn1crypto
 awesome-slugify
 bitarray
 blinker
@@ -18,6 +19,7 @@ closure
 contextlib2
 contexttimer
 coverage
+cryptography
 datadog
 ddtrace
 Django
@@ -46,13 +48,14 @@ geoip2
 gevent
 gnippy
 google-api-python-client
-googleapis-common-protos
 google-cloud
+googleapis-common-protos
 greenlet
 grequests
 gunicorn
 hiredis
 hll
+http-ece
 httplib2
 hypothesis
 idna
@@ -91,6 +94,7 @@ prettytable
 probably
 psutil
 psycopg2
+py-vapid
 pyasn1
 pycparser
 pycrypto
@@ -102,8 +106,8 @@ pykafka
 pylru
 pymongo
 pyopenssl
-pyparsing
 pypandoc
+pyparsing
 pyspark
 pystorm
 pytest
@@ -116,6 +120,7 @@ python-snappy
 python-twitter
 python3-saml
 pytz
+pywebpush
 PyYAML
 raven
 readability-lxml
@@ -131,14 +136,14 @@ scrapyd
 serpextract
 service_identity
 setuptools
-simplejson
 simple_salesforce
+simplejson
 six
 smhasher
 spacy
 sphinx
-sphinx-http-domain
 sphinx_rtd_theme
+sphinx-http-domain
 sqlalchemy
 sst
 statsd
