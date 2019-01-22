@@ -48,8 +48,7 @@ geoip2
 gevent
 gnippy
 google-api-python-client
-google-cloud
-googleapis-common-protos
+google-cloud-bigquery==1.3.0
 greenlet
 grequests
 gunicorn
