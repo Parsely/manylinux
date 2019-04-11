@@ -84,7 +84,7 @@ nltk
 nose
 numpy
 oauth2client
-openpyxl==2.5.12
+openpyxl==2.6.2
 optimizely
 pandas
 paramiko
@@ -117,7 +117,7 @@ python-dateutil
 python-Levenshtein
 python-memcached
 python-saml
-python-snappy
+python-snappy==0.5
 python-twitter
 python3-saml
 pytz
@@ -145,7 +145,7 @@ spacy
 sphinx
 sphinx_rtd_theme
 sphinx-http-domain
-sqlalchemy
+sqlalchemy==1.1.15
 sst
 statsd
 statsmodels
@@ -157,7 +157,7 @@ tabulate
 testinstances
 textrazor
 texttable
-thriftpy
+thriftpy==0.3.7
 tldextract
 tornado
 Twisted
