@@ -1,4 +1,4 @@
-Cython==0.27.3
+Cython
 aiocassandra
 asn1crypto
 attrs
@@ -20,7 +20,7 @@ cassandra-driver
 certifi
 cffi
 chardet
-ciso8601==1.0.3
+ciso8601
 click
 closure
 confluent-kafka
@@ -58,7 +58,7 @@ Flask
 Flask-Assets
 Flask-Script
 Flask-Slack
-fluster==0.1.0
+fluster
 formic
 Frozen-Flask
 futures
@@ -73,7 +73,7 @@ google-auth-httplib2
 google-cloud-bigquery
 google-cloud-core
 google-resumable-media
-googleapis-common-protos==1.5.9
+googleapis-common-protos
 greenlet
 grequests
 gunicorn
@@ -104,10 +104,10 @@ Markdown
 MarkupSafe
 marshmallow
 maxminddb
-mmh3==2.4
+mmh3
 mock
 more-itertools
-msgpack-python==0.4.7
+msgpack-python
 ndg-httpsclient
 newrelic
 nltk
@@ -115,7 +115,7 @@ nose
 numpy
 oauth2client
 odfpy
-openpyxl==2.6.2
+openpyxl
 optimizely
 pandas
 paramiko
@@ -157,12 +157,12 @@ python-Levenshtein
 python-memcached
 python-mimeparse
 python-saml
-python-snappy==0.5
+python-snappy
 python-twitter
 python3-saml
 pytz
 pywebpush
-pyyaml==5.1
+pyyaml
 queuelib
 raven
 readability-lxml
@@ -183,14 +183,14 @@ serpextract
 service_identity
 setuptools
 simple_salesforce
-simplejson==3.10.0
+simplejson
 six
 smhasher
 spacy
 sphinx
 sphinx-http-domain
 sphinx_rtd_theme
-sqlalchemy==1.1.15
+sqlalchemy
 sst
 statsd
 statsmodels
@@ -202,7 +202,7 @@ tabulate
 testinstances
 textrazor
 texttable
-thriftpy==0.3.7
+thriftpy
 tldextract
 tornado
 Twisted
