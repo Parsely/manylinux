@@ -222,4 +222,5 @@ wrapt
 xlrd
 xlsxwriter
 xlwt
+yarl
 zope.interface
