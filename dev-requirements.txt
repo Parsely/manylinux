@@ -84,6 +84,7 @@ httplib2
 hyperlink
 hypothesis
 idna
+idna-ssl
 incremental
 invoke
 ipaddr
@@ -188,8 +189,8 @@ six
 smhasher
 spacy
 sphinx
-sphinx-http-domain
 sphinx_rtd_theme
+sphinx-http-domain
 sqlalchemy
 sst
 statsd
